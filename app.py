@@ -25,7 +25,11 @@ def set_buy_orders(symbol: str, quantity: float):
             quantity=quantity,
         )
     except ClientError as error:
-        print("set_buy_orders fails!!")
+        logging.error(
+            "Found error. status: {}, error code: {}, error message: {}".format(
+                error.status_code, error.error_code, error.error_message
+            )
+        )
 
 def set_sell_orders(symbol: str, quantity: float):
     #pricebuy = get_rounded_price(symbol, price)
@@ -38,7 +42,11 @@ def set_sell_orders(symbol: str, quantity: float):
             quantity=quantity,
         )
     except ClientError as error:
-        print("set_sell_orders fails!!")
+        logging.error(
+            "Found error. status: {}, error code: {}, error message: {}".format(
+                error.status_code, error.error_code, error.error_message
+            )
+        )
         
 
 @app.route('/')
