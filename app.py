@@ -1,11 +1,70 @@
-import socket
-from flask import Flask, render_template
+import socket, json
+from flask import Flask, request, render_template
+from binance.um_futures import UMFutures
+from binance.lib.utils import config_logging
+from binance.error import ClientError
+from binance.helpers import round_step_size
+import os
+
+API_Key = os.environ.get('api_key')
+API_Secret = os.environ.get('api_secret')
+binance_symbol = "BTCUSDT"
+
+um_futures_client = UMFutures(key=API_Key, secret=API_Secret)
+
 app = Flask(__name__)
-hostname=socket.gethostname()
-IPAddr=socket.gethostbyname(hostname)
-print("Your Computer Name is:"+hostname)
-print("Your Computer IP Address is:"+IPAddr)
+
+def set_buy_orders(symbol: str, quantity: float):
+    #pricebuy = get_rounded_price(symbol, price)
+
+    try:
+        response = um_futures_client.new_order(
+            symbol=symbol,
+            side="BUY",
+            type="MARKET",
+            quantity=quantity,
+        )
+    except ClientError as error:
+        print("set_buy_orders fails!!")
+
+def set_sell_orders(symbol: str, quantity: float):
+    #pricebuy = get_rounded_price(symbol, price)
+
+    try:
+        response = um_futures_client.new_order(
+            symbol=symbol,
+            side="SELL",
+            type="MARKET",
+            quantity=quantity,
+        )
+    except ClientError as error:
+        print("set_sell_orders fails!!")
+        
 
 @app.route('/')
 def hello():
-    return "Your Computer IP Address is:"+IPAddr
+    return {
+        "code": "success",
+        "message": "Hello world!",
+        }
+
+@app.route('/webhook', methods=['POST'])
+def webhook():
+    data = json.loads(request.data) 
+    webhook_quantity = float(data['strategy']['order_contracts'])
+
+    if(data['passphrase'] == "wangyizhi"):
+        if(data['strategy']['order_action'] == "sell"):
+            set_sell_orders(binance_symbol, webhook_quantity)
+        elif(data['strategy']['order_action'] == "buy"):
+            set_buy_orders(binance_symbol, webhook_quantity)
+
+        return {
+        "code": "success",
+        "message": "Success",
+        }
+    else:
+        return {
+        "code": "error",
+        "message": "Invaid passphrase",
+        }
