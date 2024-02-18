@@ -8,7 +8,8 @@ import os
 
 API_Key = os.environ.get('api_key')
 API_Secret = os.environ.get('api_secret')
-binance_symbol = "BTCUSDT"
+binance_symbol_BTC = "BTCUSDT"
+binance_symbol_ETH = "ETHUSDT"
 
 um_futures_client = UMFutures(key=API_Key, secret=API_Secret)
 
@@ -25,11 +26,7 @@ def set_buy_orders(symbol: str, quantity: float):
             quantity=quantity,
         )
     except ClientError as error:
-        logging.error(
-            "Found error. status: {}, error code: {}, error message: {}".format(
-                error.status_code, error.error_code, error.error_message
-            )
-        )
+        print("set_buy_orders fails!!")
 
 def set_sell_orders(symbol: str, quantity: float):
     #pricebuy = get_rounded_price(symbol, price)
@@ -42,11 +39,7 @@ def set_sell_orders(symbol: str, quantity: float):
             quantity=quantity,
         )
     except ClientError as error:
-        logging.error(
-            "Found error. status: {}, error code: {}, error message: {}".format(
-                error.status_code, error.error_code, error.error_message
-            )
-        )
+        print("set_sell_orders fails!!")
         
 
 @app.route('/')
@@ -62,11 +55,16 @@ def webhook():
     webhook_quantity = float(data['strategy']['order_contracts'])
 
     if(data['passphrase'] == "wangyizhi"):
-        if(data['strategy']['order_action'] == "sell"):
-            set_sell_orders(binance_symbol, webhook_quantity)
-        elif(data['strategy']['order_action'] == "buy"):
-            set_buy_orders(binance_symbol, webhook_quantity)
-
+        if(data['ticker'] == "BTCUSDT.P"):
+            if(data['strategy']['order_action'] == "sell"):
+                set_sell_orders(binance_symbol_BTC, webhook_quantity)
+            elif(data['strategy']['order_action'] == "buy"):
+                set_buy_orders(binance_symbol_BTC, webhook_quantity)
+        elif(data['ticker'] == "ETHUSDT.P"):
+            if(data['strategy']['order_action'] == "sell"):
+                set_sell_orders(binance_symbol_ETH, webhook_quantity)
+            elif(data['strategy']['order_action'] == "buy"):
+                set_buy_orders(binance_symbol_ETH, webhook_quantity)
         return {
         "code": "success",
         "message": "Success",
