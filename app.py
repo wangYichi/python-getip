@@ -53,7 +53,8 @@ def hello():
 def webhook():
     data = json.loads(request.data) 
     webhook_quantity = float(data['strategy']['order_contracts'])
-
+    print(data)
+    
     if(data['passphrase'] == "wangyizhi"):
         if(data['ticker'] == "BTCUSDT.P"):
             if(data['strategy']['order_action'] == "sell"):
