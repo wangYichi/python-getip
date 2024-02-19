@@ -1,4 +1,4 @@
-import socket, json
+import socket, json, math
 from flask import Flask, request, render_template
 from binance.um_futures import UMFutures
 from binance.lib.utils import config_logging
@@ -53,7 +53,9 @@ def hello():
 def webhook():
     data = json.loads(request.data) 
     webhook_quantity = float(data['strategy']['order_contracts'])
+    webhook_quantity = math.floor(webhook_quantity*100)/1000.0
     print(data)
+    print(webhook_quantity)
     
     if(data['passphrase'] == "wangyizhi"):
         if(data['ticker'] == "BTCUSDT.P"):
