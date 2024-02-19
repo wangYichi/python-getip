@@ -40,6 +40,14 @@ def set_sell_orders(symbol: str, quantity: float):
         )
     except ClientError as error:
         print("set_sell_orders fails!!")
+
+def cancel_all_orders(symbol: str):
+    try:
+        response = um_futures_client.cancel_open_orders(
+            symbol=symbol,
+        )
+    except ClientError as error:
+        print("cancel_all_orders fails!!")
         
 
 @app.route('/')
@@ -59,10 +67,12 @@ def webhook():
     
     if(data['passphrase'] == "wangyizhi"):
         if(data['ticker'] == "BTCUSDT.P"):
-            if(data['strategy']['order_action'] == "sell"):
+            if(data['strategy']['order_action'] == "sell" and data['strategy']['order_id'] != "Long STP" and data['strategy']['order_id'] != "Short STP"):
                 set_sell_orders(binance_symbol_BTC, webhook_quantity)
-            elif(data['strategy']['order_action'] == "buy"):
+            elif(data['strategy']['order_action'] == "buy" and data['strategy']['order_id'] != "Long STP" and data['strategy']['order_id'] != "Short STP"):
                 set_buy_orders(binance_symbol_BTC, webhook_quantity)
+            elif(data['strategy']['order_id'] == "Long STP" or data['strategy']['order_id'] == "Short STP"):
+                cancel_all_orders(binance_symbol_BTC)
         elif(data['ticker'] == "ETHUSDT.P"):
             if(data['strategy']['order_action'] == "sell"):
                 set_sell_orders(binance_symbol_ETH, webhook_quantity)
