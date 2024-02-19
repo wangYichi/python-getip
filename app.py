@@ -53,6 +53,7 @@ def hello():
 def webhook():
     data = json.loads(request.data) 
     webhook_quantity = float(data['strategy']['order_contracts'])
+    webhook_quantity = math.floor(webhook_quantity*1000)/1000.0
     print(data)
     print(webhook_quantity)
     
