@@ -74,10 +74,12 @@ def webhook():
             elif(data['strategy']['order_id'] == "Long STP" or data['strategy']['order_id'] == "Short STP"):
                 cancel_all_orders(binance_symbol_BTC)
         elif(data['ticker'] == "ETHUSDT.P"):
-            if(data['strategy']['order_action'] == "sell"):
+            if(data['strategy']['order_action'] == "sell" and data['strategy']['order_id'] != "Long STP" and data['strategy']['order_id'] != "Short STP"):
                 set_sell_orders(binance_symbol_ETH, webhook_quantity)
-            elif(data['strategy']['order_action'] == "buy"):
+            elif(data['strategy']['order_action'] == "buy" and data['strategy']['order_id'] != "Long STP" and data['strategy']['order_id'] != "Short STP"):
                 set_buy_orders(binance_symbol_ETH, webhook_quantity)
+            elif(data['strategy']['order_id'] == "Long STP" or data['strategy']['order_id'] == "Short STP"):
+                cancel_all_orders(binance_symbol_ETH)
         return {
         "code": "success",
         "message": "Success",
